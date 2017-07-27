@@ -1,0 +1,74 @@
+{
+  "name": "object-distance",
+  "version": "0.0.1",
+  "description": "Utility for finding the distance between 2 javascript objects based on their properties",
+  "main": "lib/index.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "BABEL_ENV=build babel js -d lib",
+    "start": "node lib/index.js",
+    "lint": "node_modules/.bin/eslint js --fix",
+    "debug": "npm run build && mocha --inspect-brk --compilers js:babel-core/register",
+    "test": "npm run build && mocha --compilers js:babel-core/register"
+  },
+  "keywords": [
+    "diff",
+    "object",
+    "distance",
+    "compare",
+    "comparison"
+  ],
+  "author": "Jake Cattrall",
+  "license": "MIT",
+  "babel": {
+    "comments": false,
+    "plugins": [
+      "transform-line",
+      "transform-runtime"
+    ],
+    "presets": [
+      "env"
+    ],
+    "sourceMaps": "inline"
+  },
+  "eslintConfig": {
+    "env": {
+      "es6": true,
+      "mocha": true,
+      "node": true
+    },
+    "extends": "isotropic",
+    "parserOptions": {
+      "ecmaFeatures": {
+        "experimentalObjectRestSpread": true,
+        "globalReturn": false,
+        "impliedStrict": true,
+        "jsx": false
+      },
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    },
+    "rules": {
+      "no-process-env": "off",
+      "no-console": "off",
+      "camelcase": "off",
+      "no-confusing-arrow": "off",
+      "no-undefined": "off"
+    },
+    "root": true
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-istanbul": "^0.12.2",
+    "babel-plugin-transform-line": "^0.3.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.5.2",
+    "eslint": "^4.0.0",
+    "eslint-config-isotropic": "^0.5.0"
+  },
+  "dependencies": {
+    "babel-preset-es2015": "^6.24.1",
+    "babel-runtime": "^6.23.0",
+    "js-levenshtein": "^1.1.2"
+  }
+}
