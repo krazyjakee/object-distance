@@ -26,6 +26,9 @@ const obj1 = {
     },
     obj6 = {
         a: [0, 1]
+    },
+    obj7 = {
+        a: null
     };
 
 describe('core', () => {
@@ -36,6 +39,11 @@ describe('core', () => {
 
     it('can compare very different objects', done => {
         assert.equal(objectDistance(obj1, [obj2])[0], 100);
+        done();
+    });
+
+    it('can compare objects with null values', done => {
+        assert.equal(objectDistance(obj1, [obj7])[0], 100);
         done();
     });
 

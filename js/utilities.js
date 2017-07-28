@@ -3,7 +3,7 @@ module.exports.flattenObject = originalObject => {
         iterate = (obj, stack) => {
             stack = stack || '';
             Object.keys(obj).forEach(k => {
-                obj[k].constructor === Object ?
+                obj[k] !== null && obj[k].constructor === Object ?
                     iterate(obj[k], k) :
                     newObj[`${stack}.${k}`] = obj[k];
             });

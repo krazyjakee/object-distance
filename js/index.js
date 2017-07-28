@@ -18,6 +18,10 @@ const compareObject = (sourceObject, targetObject) => {
 
             if (value1 === undefined) {
                 valueDistance.push(100);
+            } else if (value1 === null) {
+                valueDistance.push(value2 === null ?
+                    0 :
+                    100);
             } else {
                 switch (value1.constructor) {
                     case String: {

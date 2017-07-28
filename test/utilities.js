@@ -17,6 +17,18 @@ describe('core', () => {
         done();
     });
 
+    it('can flatten an object with odd values', done => {
+        const flatObject = flattenObject({
+            test: {
+                test2: null
+            },
+            test3: [null]
+        });
+
+        assert.equal(Object.keys(flatObject)[0], 'test.test2');
+        done();
+    });
+
     it('can get a percentage', done => {
         assert.equal(getPercentage(25, 50), 50);
         done();
