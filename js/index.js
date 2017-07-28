@@ -62,7 +62,7 @@ const compareObject = (sourceObject, targetObject) => {
             Object.keys(obj).forEach(k => {
                 if (maxMin[k] === undefined) {
                     maxMin[k] = [obj[k], obj[k]];
-                } else {
+                } else if (obj[k] !== null) {
                     switch (obj[k].constructor) {
                         case Number:
                             if (obj[k] > maxMin[k][1]) {
