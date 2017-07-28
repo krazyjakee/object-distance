@@ -3,7 +3,8 @@ import {
     booleanDistance,
     flattenObject,
     intDistance,
-    stringDistance
+    stringDistance,
+    filterNullValues
 } from './utilities';
 
 let maxMin,
@@ -53,9 +54,15 @@ const compareObject = (sourceObject, targetObject, index) => {
         });
 
         const breakdown = {},
-            valueDistanceValues = Object.values(valueDistance).filter(v => v !== null),
-            distance = valueDistanceValues.length ?
-                valueDistanceValues.reduce((sum, a) => sum + a, 0) / (valueDistanceValues.length || 1) :
+            filteredValueDistance = filterNullValues(valueDistance),
+            filteredValueDistanceKeys = Object.keys(filteredValueDistance),
+            distance = filteredValueDistanceKeys.length ?
+                filteredValueDistanceKeys.reduce((sum, k) => {
+                    const weight = options.keys[k] && options.keys[k].weight ?
+                        options.keys[k].weight / 100 :
+                        1;
+                    return sum + (filteredValueDistance[k] * weight)
+                }, 0) / (filteredValueDistanceKeys.length || 1) :
                 100;
 
         Object.keys(valueDistance).forEach(k => {
@@ -107,12 +114,14 @@ const compareObject = (sourceObject, targetObject, index) => {
         options = Object.assign({}, {
             id: 'id',
             ignoreKeys: [],
-            keys: {}
+            keys: {},
+            blacklist: []
         }, optionsObj || {});
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
         calculateMaxMin(targetObjects.concat([sourceObject]));
-        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index)).filter(v => v !== null);
+        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index))
+            .filter(v => v !== null && !options.blacklist.includes(v.id));
         targetObjects.sort((a, b) => a.distance - b.distance);
         return targetObjects;
     },
@@ -137,7 +146,7 @@ const compareObject = (sourceObject, targetObject, index) => {
                 break;
             }
         }
-        if (options.keys[key] && options.keys[key].type !== actualType) {
+        if (options.keys[key] && options.keys[key].type && options.keys[key].type !== actualType) {
             return null;
         }
         return actualType;

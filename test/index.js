@@ -60,22 +60,22 @@ describe('core', () => {
     });
 
     it('can compare equal objects', done => {
-        assert.equal(objectDistance(obj1, [obj1])[0].distance, 0);
+        assert.equal(objectDistance(obj1, obj1)[0].distance, 0);
         done();
     });
 
     it('can compare very different objects', done => {
-        assert.equal(objectDistance(obj1, [obj2])[0].distance, 100);
+        assert.equal(objectDistance(obj1, obj2)[0].distance, 100);
         done();
     });
 
     it('can compare objects with null values', done => {
-        assert.equal(objectDistance(obj1, [obj7])[0].distance, 100);
+        assert.equal(objectDistance(obj1, obj7)[0].distance, 100);
         done();
     });
 
     it('can compare similar objects', done => {
-        const distanceArray = objectDistance(obj2, [obj3])[0].distance;
+        const distanceArray = objectDistance(obj2, obj3)[0].distance;
 
         assert.equal(true, distanceArray >= 0 && distanceArray < 100);
         done();
@@ -89,7 +89,7 @@ describe('core', () => {
     });
 
     it('can compare arrays', done => {
-        assert.equal(Math.floor(objectDistance(obj5, [obj6])[0].distance), 33);
+        assert.equal(Math.floor(objectDistance(obj5, obj6)[0].distance), 33);
         done();
     });
 
@@ -123,7 +123,7 @@ describe('options', () => {
                     type: 'number'
                 }
             }
-        })[0].breakdown.z, undefined);
+        })[0].breakdown.z.distance, null);
         assert.equal(objectDistance(obj2, [obj3, obj4], {
             keys: {
                 y: {
@@ -135,13 +135,13 @@ describe('options', () => {
     });
 
     it('can weight a value', done => {
-        assert.equal(objectDistance(obj2, [obj3], {
+        assert.equal(Math.floor(objectDistance(obj5, obj6, {
             keys: {
-                y: {
-                    weight: 50
+                a: {
+                    weight: 200
                 }
             }
-        })[0].distance, 2);
+        })[0].distance), 66);
         done();
     });
 });
