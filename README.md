@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/krazyjakee/object-distance.svg?branch=master)](https://travis-ci.org/krazyjakee/object-distance)
+[![NPM Version](https://img.shields.io/npm/v/object-distance.svg)](https://www.npmjs.com/package/object-distance)
+[![Downloads](https://img.shields.io/npm/dm/object-distance.svg)](https://www.npmjs.com/package/object-distance)
+
 # Object-Distance
 
 ## Installation
@@ -11,6 +15,8 @@ objectDistance(objectToCompare, [objectsToCompareAgainst]); // Returns an array 
 // The second parameter can also be a single object to compare with.
 objectDistance({}, {}); // [0]
 ```
+
+It's also worth checking out [the test file](https://github.com/krazyjakee/object-distance/blob/master/test/index.js) to see real working examples.
 
 ## How it works.
 - The objects are flattened to one dimention.
