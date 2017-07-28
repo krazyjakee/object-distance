@@ -25,7 +25,7 @@ const compareObject = (sourceObject, targetObject, index) => {
             const value1 = orderedSets[0][k],
                 value2 = orderedSets[1][k];
 
-            if (value1 === undefined || value2 === undefined || value1 === null || value2 === null) {
+            if (value1 === undefined) {
                 valueDistance[k] = null;
             } else {
                 switch (getValueType(k, value1)) {
@@ -52,23 +52,27 @@ const compareObject = (sourceObject, targetObject, index) => {
             }
         });
 
-        const breakdown = {};
+        const breakdown = {},
+            valueDistanceValues = Object.values(valueDistance).filter(v => v !== null),
+            distance = valueDistanceValues.length ?
+                valueDistanceValues.reduce((sum, a) => sum + a, 0) / (valueDistanceValues.length || 1) :
+                100;
+
         Object.keys(valueDistance).forEach(k => {
-            if (valueDistance[k]) {
-                breakdown[k] = maxMin[k][1] !== null ?
-                    {
-                        max: maxMin[k][1],
-                        min: maxMin[k][0],
-                        distance: valueDistance[k]
-                    } :
-                    {
-                        distance: valueDistance[k]
-                    };
-            }
+            breakdown[k] = maxMin[k][1] !== null ?
+                {
+                    max: maxMin[k][1],
+                    min: maxMin[k][0],
+                    distance: valueDistance[k]
+                } :
+                {
+                    distance: valueDistance[k]
+                };
         });
+
         return {
             id,
-            distance: Object.values(valueDistance).filter(v => v !== null).reduce((sum, a) => sum + a, 0) / (Object.values(valueDistance).length || 1),
+            distance,
             breakdown
         };
     },
@@ -100,24 +104,22 @@ const compareObject = (sourceObject, targetObject, index) => {
         if (targetObjects.constructor === Object) {
             targetObjects = [targetObjects];
         }
-        if (optionsObj) {
-            options = Object.assign({}, {
-                id: 'id',
-                ignoreKeys: [],
-                keys: {}
-            }, optionsObj);
-        }
+        options = Object.assign({}, {
+            id: 'id',
+            ignoreKeys: [],
+            keys: {}
+        }, optionsObj || {});
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
         calculateMaxMin(targetObjects.concat([sourceObject]));
-        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index));
+        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index)).filter(v => v !== null);
         targetObjects.sort((a, b) => a.distance - b.distance);
         return targetObjects;
     },
     getValueType = (key, value) => {
         let actualType = null;
 
-        switch (value.constructor) {
+        switch (value !== null && value.constructor) {
             case String: {
                 actualType = 'string';
                 break;
