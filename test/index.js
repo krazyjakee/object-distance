@@ -141,7 +141,7 @@ describe('options', () => {
                     weight: 200
                 }
             }
-        })[0].distance), 66);
+        })[0].distance), 16);
         done();
     });
 });
@@ -151,6 +151,24 @@ describe('blacklisting', () => {
         assert.equal(objectDistance(obj2, [obj3, obj4], {
             blacklist: [9],
             id: 'x'
+        }).length, 1);
+        done();
+    });
+
+    it('can blacklist values', done => {
+        assert.equal(objectDistance(obj2, [obj3, obj4, obj5], {
+            keys: {
+                x: {
+                    blacklist: [9]
+                }
+            }
+        }).length, 2);
+        assert.equal(objectDistance(obj5, [obj5, obj6], {
+            keys: {
+                a: {
+                    blacklist: [2]
+                }
+            }
         }).length, 1);
         done();
     });

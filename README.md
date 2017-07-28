@@ -15,10 +15,12 @@ objectDistance(objectToCompare, [objectsToCompareAgainst]);
     Returns an array of distance objects with id and percentage...
     [{
         id: 0,
-        distance: 4.25453
+        distance: 4.25453, // very similar
+        breakdown: {} // an object containing details of the calculation
     }, {
         id: 1,
-        distance: 100
+        distance: 100, // not similar at all
+        breakdown: {}
     }]
 */
 
@@ -37,4 +39,4 @@ It's also worth checking out [the test file](https://github.com/krazyjakee/objec
 - `Boolean` are either a 0 or 100 distance.
 
 ## Why use this?
-One use case is taking a big set of data and finding similarities between them. The closer the distance the more similar they are.
+One use case is taking a big set of data objects and finding the most similar ones. The smaller the distance the higher the similarity.
