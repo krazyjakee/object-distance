@@ -54,7 +54,6 @@ const obj1 = {
     };
 
 describe('core', () => {
-
     it('can return index as id', done => {
         assert.equal(objectDistance(obj1, [obj1, obj2, obj3])[2].id, 2);
         done();
@@ -95,7 +94,7 @@ describe('core', () => {
     });
 
     it('can compare arrays', done => {
-        assert.equal(Math.floor(objectDistance(obj5, [obj6])[0].distance), 66);
+        assert.equal(Math.floor(objectDistance(obj5, [obj6])[0].distance), 33);
         done();
     });
 

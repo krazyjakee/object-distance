@@ -1,9 +1,10 @@
 import {
+    arrayDistance,
+    booleanDistance,
     flattenObject,
-    getPercentage
+    intDistance,
+    stringDistance
 } from './utilities';
-
-import levenshtein from 'js-levenshtein';
 
 let maxMin,
     options;
@@ -18,6 +19,9 @@ const compareObject = (sourceObject, targetObject, index) => {
 
         orderedSets.sort((a, b) => Object.keys(a).length - Object.keys(b).length);
         Object.keys(orderedSets[1]).forEach(k => {
+            if (k === options.idKey || k === 'id') {
+                return;
+            }
             const value1 = orderedSets[0][k],
                 value2 = orderedSets[1][k];
 
@@ -30,38 +34,31 @@ const compareObject = (sourceObject, targetObject, index) => {
             } else {
                 switch (value1.constructor) {
                     case String: {
-                        const value = [value1, value2];
-
-                        value.sort((a, b) => a.length - b.length);
-                        valueDistance.push(getPercentage(levenshtein(value[0], value[1]), value[0].length));
+                        valueDistance.push(stringDistance(value1, value2));
                         break;
                     }
                     case Number: {
-                        const max = maxMin[k][1],
-                            sorted = [getPercentage(value1, max), getPercentage(value2, max)];
-
-                        sorted.sort((a, b) => a - b);
-                        valueDistance.push(sorted[1] - sorted[0]);
+                        valueDistance.push(intDistance(value1, value2, maxMin[k][1], maxMin[k][0]));
                         break;
                     }
                     case Boolean: {
-                        valueDistance.push(value1 === value2 ?
-                            0 :
-                            100);
+                        valueDistance.push(booleanDistance(value1, value2));
                         break;
                     }
                     case Array: {
-                        const value = [value1, value2];
-
-                        value.sort((a, b) => a.length - b.length);
-                        valueDistance.push(getPercentage(value[1].filter(i => value[0].includes(i)).length, value[1].length));
+                        valueDistance.push(arrayDistance(value1, value2));
+                        break;
+                    }
+                    default: {
+                        valueDistance.push(100);
                     }
                 }
             }
         });
         return {
             id,
-            distance: valueDistance.reduce((sum, a) => sum + a, 0) / (valueDistance.length || 1)
+            distance: valueDistance.reduce((sum, a) => sum + a, 0) / (valueDistance.length || 1),
+            distances: valueDistance
         };
     },
     calculateMaxMin = targetObjects => {
@@ -95,7 +92,9 @@ const compareObject = (sourceObject, targetObject, index) => {
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
         calculateMaxMin(targetObjects);
-        return targetObjects.map((obj, index) => compareObject(sourceObject, obj, index));
+        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index));
+        targetObjects.sort((a, b) => a.distance - b.distance);
+        return targetObjects;
     };
 
 export default objectDistance;
