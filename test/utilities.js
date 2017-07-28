@@ -21,9 +21,4 @@ describe('core', () => {
         assert.equal(getPercentage(25, 50), 50);
         done();
     });
-
-    it('can get a reverse percentage', done => {
-        assert.equal(getPercentage(5, 20), 25);
-        done();
-    });
 });

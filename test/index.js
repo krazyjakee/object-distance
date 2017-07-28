@@ -20,6 +20,12 @@ const obj1 = {
         x: 9,
         y: 0.4,
         z: 'XYYYY'
+    },
+    obj5 = {
+        a: [0, 1, 2]
+    },
+    obj6 = {
+        a: [0, 1]
     };
 
 describe('core', () => {
@@ -44,6 +50,11 @@ describe('core', () => {
         const distanceArray = objectDistance(obj2, [obj3, obj4]);
 
         assert.equal(true, distanceArray[0] < distanceArray[1]);
+        done();
+    });
+
+    it('can compare arrays', done => {
+        assert.equal(objectDistance(obj5, [obj6])[0], 66);
         done();
     });
 });

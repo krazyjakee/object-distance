@@ -1,13 +1,18 @@
-module.exports.flattenObject = (originalObject) => {
-    let newObj = {};
+module.exports.flattenObject = originalObject => {
+    const newObj = {},
+        iterate = (obj, stack) => {
+            stack = stack || '';
+            Object.keys(obj).forEach(k => {
+                obj[k].constructor === Object ?
+                    iterate(obj[k], k) :
+                    newObj[`${stack}.${k}`] = obj[k];
+            });
+        };
 
-    const iterate = (obj, stack) => {
-        stack = stack || '';
-        Object.keys(obj).forEach(k => typeof obj[k] === "object" ? iterate(obj[k], k) : newObj[`${stack}.${k}`] = obj[k]);
-    }
     iterate(originalObject);
     return newObj;
 };
 
 const getPercentage = (value, max) => Math.floor(100 / max * value);
-module.exports.getPercentage = getPercentage
+
+module.exports.getPercentage = getPercentage;

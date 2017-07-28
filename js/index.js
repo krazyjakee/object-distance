@@ -19,15 +19,15 @@ const compareObject = (sourceObject, targetObject) => {
             if (value1 === undefined) {
                 valueDistance.push(100);
             } else {
-                switch (typeof value1) {
-                    case 'string': {
+                switch (true) {
+                    case typeof value1 === 'string': {
                         const value = [value1, value2];
 
                         value.sort((a, b) => a.length - b.length);
                         valueDistance.push(getPercentage(levenshtein(value[0], value[1]), value[0].length));
                         break;
                     }
-                    case 'number': {
+                    case typeof value1 === 'number': {
                         const max = maxMin[k][1],
                             sorted = [getPercentage(value1, max), getPercentage(value2, max)];
 
@@ -35,11 +35,17 @@ const compareObject = (sourceObject, targetObject) => {
                         valueDistance.push(sorted[1] - sorted[0]);
                         break;
                     }
-                    case 'boolean': {
+                    case typeof value1 === 'boolean': {
                         valueDistance.push(value1 === value2 ?
                             0 :
                             100);
                         break;
+                    }
+                    case Array.isArray(value1): {
+                        const value = [value1, value2];
+
+                        value.sort((a, b) => a.length - b.length);
+                        valueDistance.push(getPercentage(value[1].filter(i => value[0].includes(i)).length, value[1].length));
                     }
                 }
             }
@@ -67,6 +73,12 @@ const compareObject = (sourceObject, targetObject) => {
         });
     },
     objectDistance = (sourceObject, targetObjects) => {
+        if (!targetObjects) {
+            return false;
+        }
+        if (targetObjects.constructor === Object) {
+            targetObjects = [targetObjects];
+        }
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
         calculateMaxMin(targetObjects);
