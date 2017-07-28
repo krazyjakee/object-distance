@@ -33,7 +33,8 @@ module.exports.stringDistance = (value1, value2) => {
 };
 
 module.exports.intDistance = (value1, value2, max, min) => {
-    const value = [getPercentage(value1, max), getPercentage(value2, max)];
+    min = min || 0;
+    const value = [getPercentage(value1 - min, max - min), getPercentage(value2 - min, max - min)];
 
     value.sort((a, b) => a - b);
     return value[1] - value[0];

@@ -49,6 +49,8 @@ describe('core', () => {
         assert.equal(intDistance(4, 6, 10, 0), 20);
         assert.equal(intDistance(1, 1, 10, 0), 0);
         assert.equal(intDistance(0, 10, 10, 0), 100);
+        assert.equal(intDistance(14, 16, 20, 10), 20);
+        assert.equal(true, intDistance(2015, 2017, 2018, 1970) < 5);
         done();
     });
 
