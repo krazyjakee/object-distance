@@ -59,11 +59,6 @@ describe('core', () => {
         done();
     });
 
-    it('can return objectId as id', done => {
-        assert.equal(objectDistance(obj1, [obj8, obj9])[1].id, 21748);
-        done();
-    });
-
     it('can compare equal objects', done => {
         assert.equal(objectDistance(obj1, [obj1])[0].distance, 0);
         done();
@@ -102,6 +97,66 @@ describe('core', () => {
         const distanceArray = objectDistance(obj8, obj9)[0].distance;
 
         assert.equal(true, distanceArray >= 0 && distanceArray < 100);
+        done();
+    });
+});
+
+describe('options', () => {
+    it('can ignore keys', done => {
+        assert.equal(objectDistance(obj2, [obj3], {
+            keys: {
+                z: {
+                    ignore: true
+                }
+            }
+        })[0].distance, 2);
+        done();
+    });
+
+    it('can set and use an id', done => {
+        assert.equal(objectDistance(obj1, [obj8, obj9], {
+            keys: {
+                id: {
+                    id: true
+                }
+            }
+        })[1].id, 21748);
+        done();
+    });
+
+    it('can force a type on a value', done => {
+        assert.equal(objectDistance(obj2, [obj3], {
+            keys: {
+                z: {
+                    type: 'integer'
+                }
+            }
+        })[0].distance, 2);
+        done();
+    });
+
+    it('can weight a value', done => {
+        assert.equal(objectDistance(obj2, [obj3], {
+            keys: {
+                y: {
+                    weight: 50
+                }
+            }
+        })[0].distance, 2);
+        done();
+    });
+});
+
+describe('blacklisting', () => {
+    it('can blacklist ids', done => {
+        assert.equal(objectDistance(obj2, [obj3, obj4], {
+            blacklist: [9],
+            keys: {
+                x: {
+                    id: true
+                }
+            }
+        }).length, 1);
         done();
     });
 });
