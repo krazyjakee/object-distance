@@ -19,15 +19,15 @@ const compareObject = (sourceObject, targetObject) => {
             if (value1 === undefined) {
                 valueDistance.push(100);
             } else {
-                switch (true) {
-                    case typeof value1 === 'string': {
+                switch (value1.constructor) {
+                    case String: {
                         const value = [value1, value2];
 
                         value.sort((a, b) => a.length - b.length);
                         valueDistance.push(getPercentage(levenshtein(value[0], value[1]), value[0].length));
                         break;
                     }
-                    case typeof value1 === 'number': {
+                    case Number: {
                         const max = maxMin[k][1],
                             sorted = [getPercentage(value1, max), getPercentage(value2, max)];
 
@@ -35,13 +35,13 @@ const compareObject = (sourceObject, targetObject) => {
                         valueDistance.push(sorted[1] - sorted[0]);
                         break;
                     }
-                    case typeof value1 === 'boolean': {
+                    case Boolean: {
                         valueDistance.push(value1 === value2 ?
                             0 :
                             100);
                         break;
                     }
-                    case Array.isArray(value1): {
+                    case Array: {
                         const value = [value1, value2];
 
                         value.sort((a, b) => a.length - b.length);
@@ -59,8 +59,8 @@ const compareObject = (sourceObject, targetObject) => {
                 if (maxMin[k] === undefined) {
                     maxMin[k] = [obj[k], obj[k]];
                 } else {
-                    switch (typeof obj[k]) {
-                        case 'number':
+                    switch (obj[k].constructor) {
+                        case Number:
                             if (obj[k] > maxMin[k][1]) {
                                 maxMin[k][1] = obj[k];
                             } else if (obj[k] < maxMin[k][0]) {
