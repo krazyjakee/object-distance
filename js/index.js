@@ -5,11 +5,16 @@ import {
 
 import levenshtein from 'js-levenshtein';
 
-let maxMin;
+let maxMin,
+    options;
 
-const compareObject = (sourceObject, targetObject) => {
+const compareObject = (sourceObject, targetObject, index) => {
         const orderedSets = [sourceObject, targetObject],
-            valueDistance = [];
+            valueDistance = [],
+            objectId = targetObject[options.idKey || 'id'],
+            id = objectId === undefined || objectId === null ?
+                index :
+                objectId;
 
         orderedSets.sort((a, b) => Object.keys(a).length - Object.keys(b).length);
         Object.keys(orderedSets[1]).forEach(k => {
@@ -54,7 +59,10 @@ const compareObject = (sourceObject, targetObject) => {
                 }
             }
         });
-        return Math.floor(valueDistance.reduce((sum, a) => sum + a, 0) / (valueDistance.length || 1));
+        return {
+            id,
+            distance: valueDistance.reduce((sum, a) => sum + a, 0) / (valueDistance.length || 1)
+        };
     },
     calculateMaxMin = targetObjects => {
         maxMin = {};
@@ -76,17 +84,18 @@ const compareObject = (sourceObject, targetObject) => {
             });
         });
     },
-    objectDistance = (sourceObject, targetObjects) => {
+    objectDistance = (sourceObject, targetObjects, optionsObj) => {
         if (!targetObjects) {
             return false;
         }
         if (targetObjects.constructor === Object) {
             targetObjects = [targetObjects];
         }
+        options = optionsObj || {};
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
         calculateMaxMin(targetObjects);
-        return targetObjects.map(obj => compareObject(sourceObject, obj));
+        return targetObjects.map((obj, index) => compareObject(sourceObject, obj, index));
     };
 
 export default objectDistance;

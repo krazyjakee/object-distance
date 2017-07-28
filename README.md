@@ -10,10 +10,20 @@
 
 ## Usage
 ```javascript
-objectDistance(objectToCompare, [objectsToCompareAgainst]); // Returns an array of distance percentages ([0, 100]).
+objectDistance(objectToCompare, [objectsToCompareAgainst]);
+/*
+    Returns an array of distance objects with id and percentage...
+    [{
+        id: 0,
+        distance: 4.25453
+    }, {
+        id: 1,
+        distance: 100
+    }]
+*/
 
 // The second parameter can also be a single object to compare with.
-objectDistance({}, {}); // [0]
+objectDistance({}, {}); // { id: 0, distance: 0 }
 ```
 
 It's also worth checking out [the test file](https://github.com/krazyjakee/object-distance/blob/master/test/index.js) to see real working examples.
