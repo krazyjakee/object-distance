@@ -29,6 +29,28 @@ const obj1 = {
     },
     obj7 = {
         a: null
+    },
+    obj8 = {
+        id: 41554,
+        genres: [],
+        themes: [1],
+        keywords: [],
+        status: [null],
+        rating: 0,
+        follows: 0,
+        platform: [['Odyssey', 'odyssey--1', 88]],
+        year: 1983
+    },
+    obj9 = {
+        id: 21748,
+        genres: [],
+        themes: [],
+        keywords: [],
+        status: [null],
+        rating: 0,
+        follows: 0,
+        platform: [],
+        year: null
     };
 
 describe('core', () => {
@@ -50,7 +72,7 @@ describe('core', () => {
     it('can compare similar objects', done => {
         const distanceArray = objectDistance(obj2, [obj3])[0];
 
-        assert.equal(true, distanceArray > 0 && distanceArray < 100);
+        assert.equal(true, distanceArray >= 0 && distanceArray < 100);
         done();
     });
 
@@ -63,6 +85,13 @@ describe('core', () => {
 
     it('can compare arrays', done => {
         assert.equal(objectDistance(obj5, [obj6])[0], 66);
+        done();
+    });
+
+    it('can compare more complex sets', done => {
+        const distanceArray = objectDistance(obj8, obj9)[0];
+
+        assert.equal(true, distanceArray >= 0 && distanceArray < 100);
         done();
     });
 });

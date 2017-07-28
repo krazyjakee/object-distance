@@ -13,6 +13,15 @@ module.exports.flattenObject = originalObject => {
     return newObj;
 };
 
-const getPercentage = (value, max) => Math.floor(100 / max * value);
+const getPercentage = (value, max) => {
+    const perc = Math.floor(100 / max * value);
+
+    if (isNaN(perc) || perc === Infinity) {
+        return value === max ?
+            0 :
+            100;
+    }
+    return perc;
+};
 
 module.exports.getPercentage = getPercentage;
