@@ -103,35 +103,34 @@ describe('core', () => {
 
 describe('options', () => {
     it('can ignore keys', done => {
-        assert.equal(objectDistance(obj2, [obj3], {
-            keys: {
-                z: {
-                    ignore: true
-                }
-            }
-        })[0].distance, 2);
+        assert.equal(objectDistance(obj2, [obj3, obj4], {
+            ignoreKeys: ['z']
+        })[0].breakdown['z'], undefined);
         done();
     });
 
     it('can set and use an id', done => {
-        assert.equal(objectDistance(obj1, [obj8, obj9], {
-            keys: {
-                id: {
-                    id: true
-                }
-            }
-        })[1].id, 21748);
+        assert.equal(objectDistance(obj2, [obj3, obj4], {
+            id: 'x'
+        })[1].id, 9);
         done();
     });
 
     it('can force a type on a value', done => {
-        assert.equal(objectDistance(obj2, [obj3], {
+        assert.equal(objectDistance(obj2, [obj3, obj4], {
             keys: {
                 z: {
-                    type: 'integer'
+                    type: 'number'
                 }
             }
-        })[0].distance, 2);
+        })[0].breakdown.z, undefined);
+        assert.equal(objectDistance(obj2, [obj3, obj4], {
+            keys: {
+                y: {
+                    type: 'number'
+                }
+            }
+        })[0].breakdown.y.max, 0.4);
         done();
     });
 
@@ -151,11 +150,7 @@ describe('blacklisting', () => {
     it('can blacklist ids', done => {
         assert.equal(objectDistance(obj2, [obj3, obj4], {
             blacklist: [9],
-            keys: {
-                x: {
-                    id: true
-                }
-            }
+            id: 'x'
         }).length, 1);
         done();
     });

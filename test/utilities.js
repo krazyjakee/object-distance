@@ -9,7 +9,7 @@ import {
 
 import assert from 'assert';
 
-describe('core', () => {
+describe('utility functions', () => {
     it('can flatten an object', done => {
         const flatObject = flattenObject({
             test: {
