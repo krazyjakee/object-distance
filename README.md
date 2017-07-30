@@ -48,9 +48,10 @@ objectDistance({}, {}); // { id: 0, distance: 0 }
 
 ```javascript
 {
-    ignoreKeys: ['a', 'b', 'c.childkey`]
+    ignoreKeys: ['a', 'b', 'c.childkey']
 }
 ```
+
 - `keys` an object containing properties for individual key names.
     - `type` force a type for this key. If the key type does not match this type, it will be ignored. Type can be `string`, `number`, `boolean` or `array`.
     - `weight` the percentage of importance this value has. Use high percentages (over 100) to reduce the distance and lower than one hundred to increase distance. Basically, if the value should have less bearing on the final result, decrease the percentage.
