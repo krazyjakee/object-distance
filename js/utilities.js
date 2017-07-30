@@ -25,6 +25,17 @@ module.exports.flattenObject = originalObject => {
     return newObj;
 };
 
+module.exports.filterNullValues = originalObject => {
+    const newObj = {};
+
+    Object.keys(originalObject).forEach(k => {
+        if (originalObject[k] !== null) {
+            newObj[k] = originalObject[k];
+        }
+    });
+    return newObj;
+}
+
 module.exports.stringDistance = (value1, value2) => {
     const value = [value1, value2];
 

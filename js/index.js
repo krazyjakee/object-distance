@@ -3,7 +3,8 @@ import {
     booleanDistance,
     flattenObject,
     intDistance,
-    stringDistance
+    stringDistance,
+    filterNullValues
 } from './utilities';
 
 let maxMin,
@@ -12,52 +13,78 @@ let maxMin,
 const compareObject = (sourceObject, targetObject, index) => {
         const orderedSets = [sourceObject, targetObject],
             valueDistance = {},
-            objectId = targetObject[options.idKey || 'id'],
+            objectId = targetObject[options.id],
             id = objectId === undefined || objectId === null ?
                 index :
                 objectId;
+        let blacklisted = false;
 
         orderedSets.sort((a, b) => Object.keys(a).length - Object.keys(b).length);
         Object.keys(orderedSets[1]).forEach(k => {
-            if (k === options.idKey || k === 'id') {
+            if (k === options.id || options.ignoreKeys.includes(k) || blacklisted) {
                 return;
             }
             const value1 = orderedSets[0][k],
                 value2 = orderedSets[1][k];
 
             if (value1 === undefined) {
-                valueDistance[k] = 100;
-            } else if (value1 === null) {
-                valueDistance[k] = value2 === null ?
-                    0 :
-                    100;
+                valueDistance[k] = null;
             } else {
-                switch (value1.constructor) {
-                    case String: {
+                const keyOptions = options.keys[k];
+
+                switch (getValueType(k, value1)) {
+                    case 'string': {
+                        if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
+                            blacklisted = true;
+                            return;
+                        }
                         valueDistance[k] = stringDistance(value1, value2);
                         break;
                     }
-                    case Number: {
+                    case 'number': {
+                        if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
+                            blacklisted = true;
+                            return;
+                        }
                         valueDistance[k] = intDistance(value1, value2, maxMin[k][1], maxMin[k][0]);
                         break;
                     }
-                    case Boolean: {
+                    case 'boolean': {
+                        if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
+                            blacklisted = true;
+                            return;
+                        }
                         valueDistance[k] = booleanDistance(value1, value2);
                         break;
                     }
-                    case Array: {
+                    case 'array': {
+                        if (keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
+                            blacklisted = true;
+                            return;
+                        }
                         valueDistance[k] = arrayDistance(value1, value2);
                         break;
                     }
                     default: {
-                        valueDistance[k] = 100;
+                        valueDistance[k] = null;
                     }
                 }
             }
         });
 
-        const breakdown = {};
-        Object.keys(valueDistance).map(k => {
+        const breakdown = {},
+            filteredValueDistance = filterNullValues(valueDistance),
+            filteredValueDistanceKeys = Object.keys(filteredValueDistance),
+            distance = filteredValueDistanceKeys.length ?
+                filteredValueDistanceKeys.reduce((sum, k) => {
+                    const weight = options.keys[k] && options.keys[k].weight ?
+                        100 / options.keys[k].weight :
+                        1;
+                    return sum + (filteredValueDistance[k] * weight)
+                }, 0) / (filteredValueDistanceKeys.length || 1) :
+                100;
+
+        Object.keys(valueDistance).forEach(k => {
             breakdown[k] = maxMin[k][1] !== null ?
                 {
                     max: maxMin[k][1],
@@ -68,11 +95,14 @@ const compareObject = (sourceObject, targetObject, index) => {
                     distance: valueDistance[k]
                 };
         });
-        return {
-            id,
-            distance: Object.values(valueDistance).reduce((sum, a) => sum + a, 0) / (Object.values(valueDistance).length || 1),
-            breakdown
-        };
+
+        return blacklisted ?
+            null :
+            {
+                id,
+                distance,
+                breakdown
+            };
     },
     calculateMaxMin = targetObjects => {
         maxMin = {};
@@ -102,13 +132,45 @@ const compareObject = (sourceObject, targetObject, index) => {
         if (targetObjects.constructor === Object) {
             targetObjects = [targetObjects];
         }
-        options = optionsObj || {};
+        options = Object.assign({}, {
+            id: 'id',
+            ignoreKeys: [],
+            keys: {},
+            blacklist: []
+        }, optionsObj || {});
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
         calculateMaxMin(targetObjects.concat([sourceObject]));
-        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index));
+        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index))
+            .filter(v => v !== null && !options.blacklist.includes(v.id));
         targetObjects.sort((a, b) => a.distance - b.distance);
         return targetObjects;
+    },
+    getValueType = (key, value) => {
+        let actualType = null;
+
+        switch (value !== null && value.constructor) {
+            case String: {
+                actualType = 'string';
+                break;
+            }
+            case Number: {
+                actualType = 'number';
+                break;
+            }
+            case Boolean: {
+                actualType = 'boolean';
+                break;
+            }
+            case Array: {
+                actualType = 'array';
+                break;
+            }
+        }
+        if (options.keys[key] && options.keys[key].type && options.keys[key].type !== actualType) {
+            return null;
+        }
+        return actualType;
     };
 
 export default objectDistance;
