@@ -1,6 +1,6 @@
 {
   "name": "object-distance",
-  "version": "0.0.8",
+  "version": "0.1.0",
   "description": "Utility for finding the distance between javascript objects based on their properties",
   "main": "lib/index.js",
   "scripts": {
