@@ -13,7 +13,22 @@ let maxMin,
 const compareObject = (sourceObject, targetObject, index) => {
         const orderedSets = [sourceObject, targetObject],
             valueDistance = {},
+            breakdown = {},
             objectId = targetObject[options.id],
+            keyOptionsBlacklisted = (keyOptions, value) => keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value),
+            addBreakdown = (k, value1, value2) => {
+                if (options.breakdown) {
+                    breakdown[k] = {
+                        value1,
+                        value2,
+                        distance: valueDistance[k]
+                    };
+                    if (maxMin[k][1] !== null) {
+                        breakdown[k].max = maxMin[k][1];
+                        breakdown[k].min = maxMin[k][0];
+                    }
+                }
+            },
             id = objectId === undefined || objectId === null ?
                 index :
                 objectId;
@@ -23,7 +38,7 @@ const compareObject = (sourceObject, targetObject, index) => {
             smallestSet = orderedSets[0],
             largestSetKeys = Object.keys(largestSet);
 
-        for (let i = 0; i < largestSetLength.length; i += 1) {
+        for (let i = 0; i < largestSetKeys.length; i += 1) {
             const k = largestSetKeys[i];
 
             if (k === options.id || options.ignoreKeys.includes(k)) {
@@ -35,46 +50,40 @@ const compareObject = (sourceObject, targetObject, index) => {
             if (value1 === undefined) {
                 valueDistance[k] = null;
             } else {
-                const keyOptions = options.keys[k];
+                const keyOptions = options.keys[k],
+                    valueType = getValueType(k, value1);
 
-                switch (getValueType(k, value1)) {
+                if (valueType === 'array' && keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
+                    return null;
+                } else if (keyOptionsBlacklisted(keyOptions, value2)) {
+                    return null;
+                }
+
+                valueDistance[k] = null;
+                addBreakdown(k, value1, value2);
+
+                switch (valueType) {
                     case 'string': {
-                        if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
-                            return null;
-                        }
                         valueDistance[k] = stringDistance(value1, value2);
                         break;
                     }
                     case 'number': {
-                        if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
-                            return null;
-                        }
                         valueDistance[k] = intDistance(value1, value2, maxMin[k][1], maxMin[k][0]);
                         break;
                     }
                     case 'boolean': {
-                        if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
-                            return null;
-                        }
                         valueDistance[k] = booleanDistance(value1, value2);
                         break;
                     }
                     case 'array': {
-                        if (keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
-                            return null;
-                        }
                         valueDistance[k] = arrayDistance(value1, value2);
                         break;
-                    }
-                    default: {
-                        valueDistance[k] = null;
                     }
                 }
             }
         };
 
-        const breakdown = {},
-            filteredValueDistance = filterNullValues(valueDistance),
+        const filteredValueDistance = filterNullValues(valueDistance),
             filteredValueDistanceKeys = Object.keys(filteredValueDistance),
             distance = filteredValueDistanceKeys.length ?
                 filteredValueDistanceKeys.reduce((sum, k) => {
@@ -84,18 +93,6 @@ const compareObject = (sourceObject, targetObject, index) => {
                     return sum + (filteredValueDistance[k] * weight)
                 }, 0) / (filteredValueDistanceKeys.length || 1) :
                 100;
-
-        Object.keys(valueDistance).forEach(k => {
-            breakdown[k] = maxMin[k][1] !== null ?
-                {
-                    max: maxMin[k][1],
-                    min: maxMin[k][0],
-                    distance: valueDistance[k]
-                } :
-                {
-                    distance: valueDistance[k]
-                };
-        });
 
         return {
             id,
@@ -135,7 +132,8 @@ const compareObject = (sourceObject, targetObject, index) => {
             id: 'id',
             ignoreKeys: [],
             keys: {},
-            blacklist: []
+            blacklist: [],
+            breakdown: true
         }, optionsObj || {});
         sourceObject = flattenObject(sourceObject);
         targetObjects = targetObjects.map(obj => flattenObject(obj));
