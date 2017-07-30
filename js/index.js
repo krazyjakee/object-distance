@@ -17,15 +17,20 @@ const compareObject = (sourceObject, targetObject, index) => {
             id = objectId === undefined || objectId === null ?
                 index :
                 objectId;
-        let blacklisted = false;
 
         orderedSets.sort((a, b) => Object.keys(a).length - Object.keys(b).length);
-        Object.keys(orderedSets[1]).forEach(k => {
-            if (k === options.id || options.ignoreKeys.includes(k) || blacklisted) {
-                return;
+        const largestSet = orderedSets[1],
+            smallestSet = orderedSets[0],
+            largestSetKeys = Object.keys(largestSet);
+
+        for (let i = 0; i < largestSetLength.length; i += 1) {
+            const k = largestSetKeys[i];
+
+            if (k === options.id || options.ignoreKeys.includes(k)) {
+                continue;
             }
-            const value1 = orderedSets[0][k],
-                value2 = orderedSets[1][k];
+            const value1 = smallestSet[k],
+                value2 = largestSet[k];
 
             if (value1 === undefined) {
                 valueDistance[k] = null;
@@ -35,32 +40,28 @@ const compareObject = (sourceObject, targetObject, index) => {
                 switch (getValueType(k, value1)) {
                     case 'string': {
                         if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
-                            blacklisted = true;
-                            return;
+                            return null;
                         }
                         valueDistance[k] = stringDistance(value1, value2);
                         break;
                     }
                     case 'number': {
                         if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
-                            blacklisted = true;
-                            return;
+                            return null;
                         }
                         valueDistance[k] = intDistance(value1, value2, maxMin[k][1], maxMin[k][0]);
                         break;
                     }
                     case 'boolean': {
                         if (keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value2)) {
-                            blacklisted = true;
-                            return;
+                            return null;
                         }
                         valueDistance[k] = booleanDistance(value1, value2);
                         break;
                     }
                     case 'array': {
                         if (keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
-                            blacklisted = true;
-                            return;
+                            return null;
                         }
                         valueDistance[k] = arrayDistance(value1, value2);
                         break;
@@ -70,7 +71,7 @@ const compareObject = (sourceObject, targetObject, index) => {
                     }
                 }
             }
-        });
+        };
 
         const breakdown = {},
             filteredValueDistance = filterNullValues(valueDistance),
@@ -96,13 +97,11 @@ const compareObject = (sourceObject, targetObject, index) => {
                 };
         });
 
-        return blacklisted ?
-            null :
-            {
-                id,
-                distance,
-                breakdown
-            };
+        return {
+            id,
+            distance,
+            breakdown
+        };
     },
     calculateMaxMin = targetObjects => {
         maxMin = {};
