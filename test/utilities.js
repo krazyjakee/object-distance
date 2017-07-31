@@ -87,11 +87,11 @@ describe('utility functions', () => {
                 trajectory: 0
             }),
             distance2 = intDistance(1967, 1968, 2017, 1967, {
-                trajectory: 50
+                trajectory: 20
             });
 
         assert.equal(Math.round(distance1), 2);
-        assert.equal(distance2 > 1, true);
+        assert.equal(Math.round(distance2), true);
         done();
     });
 

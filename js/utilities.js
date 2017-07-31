@@ -1,7 +1,7 @@
 import levenshtein from 'js-levenshtein';
 
 const getPercentage = (value, max) => {
-        const perc = 100 / max * value;
+        const perc = value / max * 100;
 
         if (isNaN(perc) || perc === Infinity) {
             return 100;
@@ -53,19 +53,19 @@ module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
         return 0;
     }
     keyOptions = keyOptions || {};
-    const baseMax = max - (min - 1),
-        value = [getPercentage(value1 - min, baseMax), getPercentage(value2 - min, baseMax)];
-
-    value.sort((a, b) => a - b);
+    const baseMax = max - (min - 1);
+    
+    value1 = getPercentage(value1 - min, baseMax);
+    value2 = getPercentage(value2 - min, baseMax);
 
     if (keyOptions.trajectory) {
-        value[0] = calculateCurvePosition(value[0], keyOptions.trajectory);
-        value[1] = calculateCurvePosition(value[1], keyOptions.trajectory);
+        value1 = calculateCurvePosition(value1, keyOptions.trajectory);
+        value2 = calculateCurvePosition(value2, keyOptions.trajectory);
         if (keyOptions.reverse) {
-            return 100 - (value[1] - value[0]);
+            return 100 - (value2 - value1);
         }
     }
-    return value[1] - value[0];
+    return Math.abs(value2 - value1);
 };
 
 module.exports.arrayDistance = (value1, value2) => {
