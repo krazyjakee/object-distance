@@ -67,4 +67,38 @@ describe('utility functions', () => {
         assert.equal(Math.floor(arrayDistance([2], [0, 1, 2])), 66);
         done();
     });
+
+    it('can find the distance between 2 integers with trajectory', done => {
+        const distance1 = intDistance(1967, 1968, 2017, 1967, {
+            trajectory: 1
+        });
+        const distance2 = intDistance(1968, 1969, 2017, 1967, {
+            trajectory: 1
+        });
+        const distance3 = intDistance(1967, 1968, 2017, 1967, {
+            trajectory: 0.5
+        });
+
+        console.log(distance1, distance2, distance3);
+        assert.equal(distance1 >= 50, true);
+        assert.equal(distance2, 25);
+        assert.equal(distance3 < 50, true);
+        done();
+    });
+
+    it('can find the distance between 2 integers with trajectory in reverse', done => {
+        const distance1 = intDistance(1967, 1968, 2017, 1967, {
+            trajectory: 1,
+            reverse: true
+        });
+        const distance2 = intDistance(2016, 2017, 2017, 1967, {
+            trajectory: 1,
+            reverse: true
+        });
+
+        console.log(distance1, distance2);
+        assert.equal(distance1 < 5, true);
+        assert.equal(distance2 >= 50, true);
+        done();
+    });
 });

@@ -68,7 +68,7 @@ const compareObject = (sourceObject, targetObject, index) => {
                         break;
                     }
                     case 'number': {
-                        valueDistance[k] = intDistance(value1, value2, maxMin[k][1], maxMin[k][0]);
+                        valueDistance[k] = intDistance(value1, value2, maxMin[k][1], maxMin[k][0], keyOptions);
                         break;
                     }
                     case 'boolean': {
