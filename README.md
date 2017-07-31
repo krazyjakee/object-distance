@@ -56,13 +56,17 @@ objectDistance({}, {}); // { id: 0, distance: 0 }
     - `type` force a type for this key. If the key type does not match this type, it will be ignored. Type can be `string`, `number`, `boolean` or `array`.
     - `weight` the percentage of importance this value has. Use high percentages (over 100) to reduce the distance and lower than one hundred to increase distance. Basically, if the value should have less bearing on the final result, decrease the percentage.
     - `blacklist` an array of values. If the blacklisted values appear anywhere in the target values, the entire object will be ignored.
+    - `trajectory` An exponential curve percentage that makes lower numbers have reduced distance from each other. The higher the percentage, the more aggressive the curve. Here's an example: https://codepen.io/krazyjakee/pen/brEKpW
+    - `reverse` Reverses the trajectory so that lower numbers have higher distance.
 
 ```javascript
 {
     keys: {
         count: {
             type: 'number',
-            weight: 200
+            weight: 200,
+            trajectory: 20,
+            reverse: true
         },
         type: {
             type: 'string',

@@ -1,12 +1,17 @@
 import levenshtein from 'js-levenshtein';
 
 const getPercentage = (value, max) => {
-    const perc = 100 / max * value;
+        const perc = 100 / max * value;
 
-    return isNaN(perc) || perc === Infinity ?
-        100 :
-        perc;
-};
+        if (isNaN(perc) || perc === Infinity) {
+            return 100;
+        }
+        return perc;
+    },
+    calculateCurvePosition = (value, trajectory) => value * Math.pow(value, trajectory / 100);
+
+module.exports.getPercentage = getPercentage;
+module.exports.calculateCurvePosition = calculateCurvePosition;
 
 module.exports.flattenObject = originalObject => {
     const newObj = {},
@@ -34,7 +39,7 @@ module.exports.filterNullValues = originalObject => {
         }
     });
     return newObj;
-}
+};
 
 module.exports.stringDistance = (value1, value2) => {
     const value = [value1, value2];
@@ -44,24 +49,20 @@ module.exports.stringDistance = (value1, value2) => {
 };
 
 module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
-    min = min || 0;
     keyOptions = keyOptions || {};
-    const value = [getPercentage(value1 - min, max - min), getPercentage(value2 - min, max - min)];
+    const baseMax = max - (min - 1),
+        value = [getPercentage(value1 - min, baseMax), getPercentage(value2 - min, baseMax)];
 
     value.sort((a, b) => a - b);
 
     if (keyOptions.trajectory) {
+        value[0] = calculateCurvePosition(value[0], keyOptions.trajectory);
+        value[1] = calculateCurvePosition(value[1], keyOptions.trajectory);
         if (keyOptions.reverse) {
-            value[0] = (100 - value[0]) * (1 - (value[0] ? (1 / Math.pow(value[0], keyOptions.trajectory)) : 1));
-            value[1] = (100 - value[1]) * (1 - (value[1] ? (1 / Math.pow(value[1], keyOptions.trajectory)) : 1));
-        } else {
-            value[0] = (100 - value[0]) * (value[0] ? (1 / Math.pow(value[0], keyOptions.trajectory)) : 1);
-            value[1] = (100 - value[1]) * (value[1] ? (1 / Math.pow(value[1], keyOptions.trajectory)) : 1);
+            return 100 - (value[1] - value[0]);
         }
-        return value[0] - value[1];
-    } else {
-        return value[1] - value[0];
     }
+    return value[1] - value[0];
 };
 
 module.exports.arrayDistance = (value1, value2) => {
@@ -74,5 +75,3 @@ module.exports.arrayDistance = (value1, value2) => {
 module.exports.booleanDistance = (value1, value2) => value1 === value2 ?
     0 :
     100;
-
-module.exports.getPercentage = getPercentage;
