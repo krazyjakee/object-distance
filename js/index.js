@@ -1,21 +1,47 @@
 import {
     arrayDistance,
     booleanDistance,
+    filterNullValues,
     flattenObject,
     intDistance,
-    stringDistance,
-    filterNullValues
+    stringDistance
 } from './utilities';
 
 let maxMin,
     options;
 
-const compareObject = (sourceObject, targetObject, index) => {
+const getValueType = (key, value) => {
+        let actualType = null;
+
+        switch (value !== null && value.constructor) {
+            case String: {
+                actualType = 'string';
+                break;
+            }
+            case Number: {
+                actualType = 'number';
+                break;
+            }
+            case Boolean: {
+                actualType = 'boolean';
+                break;
+            }
+            case Array: {
+                actualType = 'array';
+                break;
+            }
+        }
+        if (options.keys[key] && options.keys[key].type && options.keys[key].type !== actualType) {
+            return null;
+        }
+        return actualType;
+    },
+    compareObject = (sourceObject, targetObject, index) => {
         const orderedSets = [sourceObject, targetObject],
             valueDistance = {},
             breakdown = {},
             objectId = targetObject[options.id],
-            keyOptionsBlacklisted = (keyOptions, value) => keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes(value),
+            keyOptionsBlacklisted = (keyOptions, value) => keyOptions && keyOptions.blacklist && keyOptions.blacklist.includes && keyOptions.blacklist.includes(value),
             addBreakdown = (k, value1, value2) => {
                 if (options.breakdown) {
                     breakdown[k] = {
@@ -39,59 +65,64 @@ const compareObject = (sourceObject, targetObject, index) => {
             largestSetKeys = Object.keys(largestSet);
 
         for (let i = 0; i < largestSetKeys.length; i += 1) {
-            const k = largestSetKeys[i];
-
-            if (k === options.id || options.ignoreKeys.includes(k)) {
-                continue;
-            }
-            const value1 = smallestSet[k],
+            const k = largestSetKeys[i],
+                value1 = smallestSet[k],
                 value2 = largestSet[k];
 
-            if (value1 === undefined) {
-                valueDistance[k] = null;
-            } else {
-                const keyOptions = options.keys[k],
-                    valueType = getValueType(k, value1);
+            if (k === options.id || value1 === undefined) {
+                continue;
+            }
 
-                if (valueType === 'array' && keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
-                    return null;
-                } else if (keyOptionsBlacklisted(keyOptions, value2)) {
-                    return null;
-                }
+            const keyOptions = options.keys[k],
+                valueType = getValueType(k, value1);
 
+            if (getValueType(k, value2) !== valueType) {
+                continue;
+            } else if (valueType === 'array' && keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
+                return null;
+            } else if (keyOptionsBlacklisted(keyOptions, value2)) {
+                return null;
+            } else if (options.ignoreKeys.includes(k)) {
+                continue;
+            }
+
+<<<<<<< Updated upstream
                 valueDistance[k] = null;
                 addBreakdown(k, value1, value2);
+=======
+            let finalValue = null;
+>>>>>>> Stashed changes
 
-                switch (valueType) {
-                    case 'string': {
-                        valueDistance[k] = stringDistance(value1, value2);
-                        break;
-                    }
-                    case 'number': {
-                        valueDistance[k] = intDistance(value1, value2, maxMin[k][1], maxMin[k][0], keyOptions);
-                        break;
-                    }
-                    case 'boolean': {
-                        valueDistance[k] = booleanDistance(value1, value2);
-                        break;
-                    }
-                    case 'array': {
-                        valueDistance[k] = arrayDistance(value1, value2);
-                        break;
-                    }
+            switch (valueType) {
+                case 'string': {
+                    finalValue = stringDistance(value1, value2);
+                    break;
+                }
+                case 'number': {
+                    finalValue = intDistance(value1, value2, maxMin[k][1], maxMin[k][0], keyOptions);
+                    break;
+                }
+                case 'boolean': {
+                    finalValue = booleanDistance(value1, value2);
+                    break;
+                }
+                case 'array': {
+                    finalValue = arrayDistance(value1, value2);
+                    break;
                 }
             }
-        };
+
+            if (options.keys[k] && options.keys[k].weight) {
+                finalValue *= 100 / options.keys[k].weight;
+            }
+            valueDistance[k] = finalValue;
+            addBreakdown(k, value1, value2);
+        }
 
         const filteredValueDistance = filterNullValues(valueDistance),
             filteredValueDistanceKeys = Object.keys(filteredValueDistance),
             distance = filteredValueDistanceKeys.length ?
-                filteredValueDistanceKeys.reduce((sum, k) => {
-                    const weight = options.keys[k] && options.keys[k].weight ?
-                        100 / options.keys[k].weight :
-                        1;
-                    return sum + (filteredValueDistance[k] * weight)
-                }, 0) / (filteredValueDistanceKeys.length || 1) :
+                filteredValueDistanceKeys.reduce((sum, k) => sum + filteredValueDistance[k], 0) / (filteredValueDistanceKeys.length || 1) :
                 100;
 
         return {
@@ -142,32 +173,6 @@ const compareObject = (sourceObject, targetObject, index) => {
             .filter(v => v !== null && !options.blacklist.includes(v.id));
         targetObjects.sort((a, b) => a.distance - b.distance);
         return targetObjects;
-    },
-    getValueType = (key, value) => {
-        let actualType = null;
-
-        switch (value !== null && value.constructor) {
-            case String: {
-                actualType = 'string';
-                break;
-            }
-            case Number: {
-                actualType = 'number';
-                break;
-            }
-            case Boolean: {
-                actualType = 'boolean';
-                break;
-            }
-            case Array: {
-                actualType = 'array';
-                break;
-            }
-        }
-        if (options.keys[key] && options.keys[key].type && options.keys[key].type !== actualType) {
-            return null;
-        }
-        return actualType;
     };
 
 export default objectDistance;

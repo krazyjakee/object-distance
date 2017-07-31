@@ -49,6 +49,9 @@ module.exports.stringDistance = (value1, value2) => {
 };
 
 module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
+    if (value1 === value2) {
+        return 0;
+    }
     keyOptions = keyOptions || {};
     const baseMax = max - (min - 1),
         value = [getPercentage(value1 - min, baseMax), getPercentage(value2 - min, baseMax)];
@@ -66,6 +69,9 @@ module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
 };
 
 module.exports.arrayDistance = (value1, value2) => {
+    if (JSON.stringify(value1) === JSON.stringify(value2)) {
+        return 0;
+    }
     const value = [value1, value2];
 
     value.sort((a, b) => a.length - b.length);
