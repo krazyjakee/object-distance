@@ -60,7 +60,6 @@ const compareObject = (sourceObject, targetObject, index) => {
                 }
 
                 valueDistance[k] = null;
-                addBreakdown(k, value1, value2);
 
                 switch (valueType) {
                     case 'string': {
@@ -80,6 +79,7 @@ const compareObject = (sourceObject, targetObject, index) => {
                         break;
                     }
                 }
+                addBreakdown(k, value1, value2);
             }
         };
 
