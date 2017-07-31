@@ -86,12 +86,7 @@ const getValueType = (key, value) => {
                 continue;
             }
 
-<<<<<<< Updated upstream
-                valueDistance[k] = null;
-                addBreakdown(k, value1, value2);
-=======
             let finalValue = null;
->>>>>>> Stashed changes
 
             switch (valueType) {
                 case 'string': {
@@ -110,6 +105,7 @@ const getValueType = (key, value) => {
                     finalValue = arrayDistance(value1, value2);
                     break;
                 }
+                addBreakdown(k, value1, value2);
             }
 
             if (options.keys[k] && options.keys[k].weight) {
