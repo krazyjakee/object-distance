@@ -138,10 +138,10 @@ describe('options', () => {
         assert.equal(Math.floor(objectDistance(obj5, obj6, {
             keys: {
                 a: {
-                    weight: 200
+                    weight: 50
                 }
             }
-        })[0].distance), 16);
+        })[0].distance), 66);
         done();
     });
 });

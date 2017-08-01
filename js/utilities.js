@@ -8,7 +8,7 @@ const getPercentage = (value, max) => {
         }
         return perc;
     },
-    calculateCurvePosition = (value, trajectory) => value * Math.pow(value, trajectory / 100);
+    calculateCurvePosition = (value, trajectory) => Math.pow(value, trajectory / 100);
 
 module.exports.getPercentage = getPercentage;
 module.exports.calculateCurvePosition = calculateCurvePosition;
@@ -45,16 +45,16 @@ module.exports.stringDistance = (value1, value2) => {
     const value = [value1, value2];
 
     value.sort((a, b) => a.length - b.length);
-    return getPercentage(levenshtein(value[0], value[1]), value[0].length);
+    return levenshtein(value[0], value[1]);
 };
 
 module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
     if (value1 === value2) {
-        return 0;
+        return 100;
     }
     keyOptions = keyOptions || {};
     const baseMax = max - (min - 1);
-    
+
     value1 = getPercentage(value1 - min, baseMax);
     value2 = getPercentage(value2 - min, baseMax);
 
@@ -62,7 +62,7 @@ module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
         value1 = calculateCurvePosition(value1, keyOptions.trajectory);
         value2 = calculateCurvePosition(value2, keyOptions.trajectory);
         if (keyOptions.reverse) {
-            return 100 - (value2 - value1);
+            return 100 - Math.abs(value2 - value1);
         }
     }
     return Math.abs(value2 - value1);
@@ -70,14 +70,14 @@ module.exports.intDistance = (value1, value2, max, min, keyOptions) => {
 
 module.exports.arrayDistance = (value1, value2) => {
     if (JSON.stringify(value1) === JSON.stringify(value2)) {
-        return 0;
+        return 100;
     }
     const value = [value1, value2];
 
     value.sort((a, b) => a.length - b.length);
-    return getPercentage(value[1].filter(i => !value[0].includes(i)).length, value[1].length);
+    return getPercentage(value[1].filter(i => value[0].includes(i)).length, value[1].length);
 };
 
 module.exports.booleanDistance = (value1, value2) => value1 === value2 ?
-    0 :
-    100;
+    100 :
+    0;

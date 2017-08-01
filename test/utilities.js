@@ -71,14 +71,14 @@ describe('utility functions', () => {
 
     it('can calculate curve position', done => {
         assert.equal(calculateCurvePosition(1, 0), 1);
-        assert.equal(calculateCurvePosition(10, 0), 10);
+        assert.equal(calculateCurvePosition(10, 100), 10);
 
         const curveValue1 = calculateCurvePosition(1, 50),
             curveValue2 = calculateCurvePosition(2, 50),
             curveValue3 = calculateCurvePosition(98, 50),
             curveValue4 = calculateCurvePosition(99, 50);
 
-        assert.equal(curveValue2 - curveValue1 < curveValue4 - curveValue3, true);
+        assert.equal(curveValue2 - curveValue1 > curveValue4 - curveValue3, true);
         done();
     });
 

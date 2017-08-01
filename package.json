@@ -9,7 +9,8 @@
     "start": "node lib/index.js",
     "lint": "node_modules/.bin/eslint js --fix",
     "debug": "npm run build && mocha --inspect-brk --compilers js:babel-core/register",
-    "test": "npm run build && mocha --compilers js:babel-core/register"
+    "test": "npm run build && mocha --compilers js:babel-core/register",
+    "watch": "nodemon --exec 'npm run build' --ignore lib/ --ignore test/"
   },
   "keywords": [
     "diff",

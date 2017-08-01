@@ -78,8 +78,12 @@ const getValueType = (key, value) => {
 
             if (getValueType(k, value2) !== valueType) {
                 continue;
-            } else if (valueType === 'array' && keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
-                return null;
+            } else if (valueType === 'array') {
+                if (keyOptions && keyOptions.blacklist && value2.filter(v => keyOptions.blacklist.includes(v)).length > 0) {
+                    return null;
+                } else if (value1.length === 0) {
+                    continue;
+                }
             } else if (keyOptionsBlacklisted(keyOptions, value2)) {
                 return null;
             } else if (options.ignoreKeys.includes(k)) {
@@ -105,11 +109,10 @@ const getValueType = (key, value) => {
                     finalValue = arrayDistance(value1, value2);
                     break;
                 }
-                addBreakdown(k, value1, value2);
             }
 
             if (options.keys[k] && options.keys[k].weight) {
-                finalValue *= 100 / options.keys[k].weight;
+                finalValue *= options.keys[k].weight; //options.keys[k].weight;
             }
             valueDistance[k] = finalValue;
             addBreakdown(k, value1, value2);
@@ -118,8 +121,8 @@ const getValueType = (key, value) => {
         const filteredValueDistance = filterNullValues(valueDistance),
             filteredValueDistanceKeys = Object.keys(filteredValueDistance),
             distance = filteredValueDistanceKeys.length ?
-                filteredValueDistanceKeys.reduce((sum, k) => sum + filteredValueDistance[k], 0) / (filteredValueDistanceKeys.length || 1) :
-                100;
+                filteredValueDistanceKeys.reduce((sum, k) => sum + filteredValueDistance[k], 0) :
+                0;
 
         return {
             id,
@@ -167,7 +170,7 @@ const getValueType = (key, value) => {
         calculateMaxMin(targetObjects.concat([sourceObject]));
         targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index))
             .filter(v => v !== null && !options.blacklist.includes(v.id));
-        targetObjects.sort((a, b) => a.distance - b.distance);
+        targetObjects.sort((a, b) => b.distance - a.distance);
         return targetObjects;
     };
 
