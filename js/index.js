@@ -122,13 +122,18 @@ const getValueType = (key, value) => {
             filteredValueDistanceKeys = Object.keys(filteredValueDistance),
             distance = filteredValueDistanceKeys.length ?
                 filteredValueDistanceKeys.reduce((sum, k) => sum + filteredValueDistance[k], 0) :
-                0;
+                0,
+            output = {
+                id,
+                distance,
+                target: targetObject
+            };
 
-        return {
-            id,
-            distance,
-            breakdown
-        };
+        if (options.breakdown) {
+            output.breakdown = breakdown;
+        }
+
+        return output;
     },
     calculateMaxMin = targetObjects => {
         maxMin = {};
