@@ -17,13 +17,17 @@ module.exports.flattenObject = originalObject => {
     const newObj = {},
         iterate = (obj, stack) => {
             stack = stack || '';
-            Object.keys(obj).forEach(k => {
-                obj[k] !== null && obj[k].constructor === Object ?
-                    iterate(obj[k], k) :
-                    newObj[stack === '' ?
-                        k :
-                        `${stack}.${k}`] = obj[k];
-            });
+            const objKeys = Object.keys(obj);
+
+            for (let i = 0; i < objKeys; i += 1) {
+                const k = objKeys[i];
+
+                if (obj[k] !== null && obj[k].constructor === Object) {
+                    iterate(obj[k], k);
+                } else {
+                    newObj[stack === '' ? k : `${stack}.${k}`] = obj[k];
+                }
+            }
         };
 
     iterate(originalObject);
@@ -33,11 +37,15 @@ module.exports.flattenObject = originalObject => {
 module.exports.filterNullValues = originalObject => {
     const newObj = {};
 
-    Object.keys(originalObject).forEach(k => {
+    const objKeys = Object.keys(originalObject);
+
+    for (let i = 0; i < objKeys.length; i += 1) {
+        const k = objKeys[i];
+
         if (originalObject[k] !== null) {
             newObj[k] = originalObject[k];
         }
-    });
+    }
     return newObj;
 };
 

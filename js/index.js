@@ -112,7 +112,7 @@ const getValueType = (key, value) => {
             }
 
             if (options.keys[k] && options.keys[k].weight) {
-                finalValue *= options.keys[k].weight; //options.keys[k].weight;
+                finalValue *= options.keys[k].weight; // options.keys[k].weight;
             }
             valueDistance[k] = finalValue;
             addBreakdown(k, value1, value2);
@@ -137,8 +137,13 @@ const getValueType = (key, value) => {
     },
     calculateMaxMin = targetObjects => {
         maxMin = {};
-        targetObjects.forEach(obj => {
-            Object.keys(obj).forEach(k => {
+        for (let i = 0; i < targetObjects.length; i += 1) {
+            const obj = targetObjects[i],
+                objKeys = Object.keys(obj);
+
+            for (let j = 0; j < objKeys.length; j += 1) {
+                const k = objKeys[j];
+
                 if (maxMin[k] === undefined) {
                     maxMin[k] = [null, null];
                 }
@@ -153,8 +158,8 @@ const getValueType = (key, value) => {
                             break;
                     }
                 }
-            });
-        });
+            }
+        }
     },
     objectDistance = (sourceObject, targetObjects, optionsObj) => {
         if (!targetObjects) {
@@ -171,9 +176,10 @@ const getValueType = (key, value) => {
             breakdown: true
         }, optionsObj || {});
         sourceObject = flattenObject(sourceObject);
-        targetObjects = targetObjects.map(obj => flattenObject(obj));
+        targetObjects = targetObjects.map(flattenObject);
         calculateMaxMin(targetObjects.concat([sourceObject]));
-        targetObjects = targetObjects.map((obj, index) => compareObject(sourceObject, obj, index))
+        targetObjects = targetObjects
+            .map((obj, index) => compareObject(sourceObject, obj, index))
             .filter(v => v !== null && !options.blacklist.includes(v.id));
         targetObjects.sort((a, b) => b.distance - a.distance);
         return targetObjects;
